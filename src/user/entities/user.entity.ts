@@ -3,9 +3,13 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
-export type UserRole = 'user' | 'admin';
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+}
 
 @Entity({ name: 'users' })
 export class User {
@@ -18,12 +22,32 @@ export class User {
   @Column({ type: 'varchar', length: 150, unique: true })
   email: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', name: 'phone_number', length: 20, nullable: true })
+  phoneNumber: string;
+
+  @Column({ type: 'text', name: 'password_hash' })
   passwordHash: string;
 
-  @Column({ type: 'varchar', length: 20, default: 'user' })
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'boolean', name: 'is_active', default: true })
+  isActive: boolean;
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'birth_date' })
+  birthDate: Date;
+
+  @CreateDateColumn({
+    type: 'timestamptz',
+    name: 'created_at',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamptz',
+    name: 'updated_at',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date;
 }
