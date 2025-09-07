@@ -9,37 +9,41 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
     const { name, email, phoneNumber, birthDate, password } = createUserDto;
 
-    const isExistingEmail = await this.userRepository.findOne({
-      where: { email },
-    });
-
-    if (isExistingEmail) {
+    // Check if email already exists
+    const existingUser = await this.userRepo.existsBy({ email });
+    if (existingUser) {
       throw new BadRequestException('Email already in use');
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const newUser = this.userRepository.create({
+
+    const newUser = this.userRepo.create({
       name,
       email,
       phoneNumber,
       birthDate,
       passwordHash,
     });
-    return this.userRepository.save(newUser);
+
+    return this.userRepo.save(newUser);
   }
 
   findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepo.find();
   }
 
   findOne(id: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id } });
+    return this.userRepo.findOne({ where: { id } });
+  }
+
+  async findOneByEmail(email: string): Promise<User | null> {
+    return await this.userRepo.findOne({ where: { email } });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
