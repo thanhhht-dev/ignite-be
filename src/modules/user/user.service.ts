@@ -35,15 +35,21 @@ export class UserService {
   }
 
   findAll(): Promise<User[]> {
-    return this.userRepo.find();
+    return this.userRepo.find({
+      select: [
+        'id',
+        'name',
+        'email',
+        'phoneNumber',
+        'birthDate',
+        'role',
+        'isActive',
+      ],
+    });
   }
 
   findOne(id: string): Promise<User | null> {
     return this.userRepo.findOne({ where: { id } });
-  }
-
-  async findOneByEmail(email: string): Promise<User | null> {
-    return await this.userRepo.findOne({ where: { email } });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
@@ -52,5 +58,9 @@ export class UserService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async findOneByEmail(email: string): Promise<User | null> {
+    return await this.userRepo.findOne({ where: { email } });
   }
 }
