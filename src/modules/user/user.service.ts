@@ -52,11 +52,16 @@ export class UserService {
     return this.userRepo.findOne({ where: { id } });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  update(id: string, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
+  async remove(id: string) {
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    await this.userRepo.remove(user);
     return `This action removes a #${id} user`;
   }
 
